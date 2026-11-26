@@ -1,0 +1,28 @@
+# Environment and secrets
+.env
+backend/.env
+frontend/.env
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+frontend/dist/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

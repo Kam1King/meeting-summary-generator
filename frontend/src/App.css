@@ -1,0 +1,9 @@
+/* Component-level extras live with the global theme in index.css. */
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: #d5deea;
+  border-radius: 999px;
+}
