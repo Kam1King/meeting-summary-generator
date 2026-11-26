@@ -199,11 +199,25 @@ Coverage includes successful generation, empty/short transcripts, suggestion vs 
 
 ## Screenshots
 
-Add local screenshots here after you run the app:
+### Dashboard: Transcript Input
 
-- `docs/screenshot-dashboard.png` — transcript input and generate action
-- `docs/screenshot-summary.png` — structured summary cards
-- `docs/screenshot-history.png` — saved meeting history
+![Dashboard showing transcript input and summary generation](frontend/docs/dashboard.png "Dashboard: Transcript Input")
+
+### Summary: Overview and Topics
+
+![Generated meeting overview and main topics](frontend/docs/summary.png "Summary: Overview and Topics")
+
+### Meeting History
+
+![Saved meetings in the meeting history panel](frontend/docs/history.png "Meeting History")
+
+### Key Decisions and Action Items
+
+![Extracted key decisions and assigned action items](frontend/docs/key_disscusion_action_items.png "Key Decisions and Action Items")
+
+### Pending Discussions
+
+![Open questions and pending meeting discussions](frontend/docs/pending_discussion.png "Pending Discussions")
 
 ## Future enhancements
 

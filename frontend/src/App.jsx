@@ -5,11 +5,13 @@ import {
   CheckCircle2,
   ClipboardList,
   Eraser,
+  FileText,
   HelpCircle,
   History,
   RefreshCw,
   Save,
   Sparkles,
+  Upload,
 } from "lucide-react";
 import {
   createMeeting,
@@ -29,6 +31,8 @@ Priya said the onboarding flow is still confusing for new users.
 We decided to ship the simplified checkout this Friday.
 Alex will update the release notes by Thursday.
 Open question: should we hire a contractor for design support?`;
+const MAX_TRANSCRIPT_FILE_SIZE = 10 * 1024 * 1024;
+const TRANSCRIPT_FILE_EXTENSIONS = new Set(["txt", "md", "csv", "srt", "vtt", "json"]);
 
 const emptySummary = {
   overview: { text: "", evidence: null, needs_review: false, review_reasons: [] },
@@ -82,6 +86,7 @@ function SectionActions({ onRegenerate, regenerating, onToggleEdit, editing, can
 
 export default function App() {
   const [transcript, setTranscript] = useState("");
+  const [transcriptFileName, setTranscriptFileName] = useState("");
   const [meetings, setMeetings] = useState([]);
   const [current, setCurrent] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -112,7 +117,37 @@ export default function App() {
     setCurrent(meeting);
     setSummary(meeting.summary || emptySummary);
     setTranscript(meeting.transcript || "");
+    setTranscriptFileName("");
     setEditingSection("");
+  }
+
+  async function handleTranscriptFile(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setError("");
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (!TRANSCRIPT_FILE_EXTENSIONS.has(extension)) {
+      setError("Choose a text transcript file: .txt, .md, .csv, .srt, .vtt, or .json.");
+      return;
+    }
+    if (file.size > MAX_TRANSCRIPT_FILE_SIZE) {
+      setError("Transcript files must be 10 MB or smaller.");
+      return;
+    }
+
+    try {
+      const contents = await file.text();
+      if (!contents.trim()) {
+        setError("The selected transcript file is empty.");
+        return;
+      }
+      setTranscript(contents);
+      setTranscriptFileName(file.name);
+    } catch {
+      setError("Could not read the selected file. Try saving it as UTF-8 text and upload it again.");
+    }
   }
 
   async function handleGenerate() {
@@ -187,7 +222,7 @@ export default function App() {
       <header className="topbar">
         <h1>Smart Meeting Summary Generator</h1>
         <p>
-          Paste meeting notes or a transcript. Gemini Flash extracts topics, confirmed decisions,
+          Paste meeting notes or upload a text transcript. Gemini Flash extracts topics, confirmed decisions,
           action items, and open questions — only when the transcript supports them.
         </p>
       </header>
@@ -239,6 +274,25 @@ export default function App() {
               onChange={(event) => setTranscript(event.target.value)}
               placeholder={PLACEHOLDER}
             />
+            <div className="transcript-import">
+              <label className="ghost-btn file-upload-btn">
+                <Upload size={16} /> Upload transcript
+                <input
+                  className="file-input"
+                  type="file"
+                  accept=".txt,.md,.csv,.srt,.vtt,.json,text/plain,text/csv,application/json"
+                  onChange={handleTranscriptFile}
+                  aria-label="Upload transcript file"
+                />
+              </label>
+              <span className="file-hint">
+                {transcriptFileName ? (
+                  <><FileText size={14} /> {transcriptFileName}</>
+                ) : (
+                  "TXT, MD, CSV, SRT, VTT, or JSON · up to 10 MB"
+                )}
+              </span>
+            </div>
             <div className="actions">
               <button className="primary-btn" onClick={handleGenerate} disabled={loading || !transcript.trim()} type="button">
                 {loading ? <span className="spinner" /> : <Sparkles size={16} />}
@@ -248,6 +302,7 @@ export default function App() {
                 className="ghost-btn"
                 onClick={() => {
                   setTranscript("");
+                  setTranscriptFileName("");
                   setSummary(null);
                   setCurrent(null);
                   setError("");
